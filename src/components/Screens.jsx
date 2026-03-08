@@ -13,11 +13,13 @@ export function HomeScreen({ projects, onOpen, onNew, onDelete, onDuplicate, onR
     <div style={{ padding: 32, maxWidth: 960, margin: "0 auto" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
         <div><h1 style={{ fontSize: 22, fontWeight: 700 }}>Projects</h1><p style={{ fontSize: 13, color: C.textDim, marginTop: 3 }}>Plan your walls and spaces</p></div>
-        <Btn variant="accent" onClick={onNew}><Icon type="plus" size={15} color={C.white} /> New Project</Btn>
+        {projects.length > 0 && <Btn variant="accent" onClick={onNew}><Icon type="plus" size={15} color={C.white} /> New Project</Btn>}
       </div>
       {projects.length === 0 ? (
         <div style={{ border: `2px dashed ${C.border}`, borderRadius: 14, padding: 56, textAlign: "center", color: C.textMuted }}>
-          <Icon type="folder" size={36} color={C.border} /><p style={{ marginTop: 12, fontSize: 14 }}>No projects yet</p>
+          <Icon type="folder" size={36} color={C.border} />
+          <p style={{ marginTop: 12, fontSize: 14 }}>No projects yet</p>
+          <p style={{ fontSize: 12, marginTop: 4, color: C.textMuted }}>Create a project to start planning your wall</p>
           <Btn variant="accent" onClick={onNew} style={{ marginTop: 14 }}><Icon type="plus" size={14} color={C.white} /> Create Project</Btn>
         </div>
       ) : (
@@ -83,7 +85,13 @@ export function AssetLibrary({ assets, onAdd, onEdit, onDelete, onDuplicate }) {
           {filtered.map(a => (
             <div key={a.id} style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: 12, overflow: "hidden" }}>
               <div style={{ height: 100, display: "flex", alignItems: "center", justifyContent: "center", background: C.surfaceAlt }}>
-                <AssetThumb bodyColor={a.bodyColor || "#8b6b3d"} frontColor={a.frontColor || a.bodyColor || "#8b6b3d"} w={a.width} h={a.height} d={a.depth || 15} size={90} legs={a.legStyle} drawers={a.drawers || 0} />
+                {a.category === "Artwork" && a.imageData ? (
+                  <div style={{ width: 80, height: 80, borderRadius: 4, overflow: "hidden", border: a.frameType && a.frameType !== "No frame / canvas wrap" ? `3px solid ${a.bodyColor || "#6b4423"}` : "none" }}>
+                    <img src={a.imageData} alt={a.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </div>
+                ) : (
+                  <AssetThumb bodyColor={a.bodyColor || "#8b6b3d"} frontColor={a.frontColor || a.bodyColor || "#8b6b3d"} w={a.width} h={a.height} d={a.depth || 15} size={90} legs={a.legStyle} drawers={a.drawers || 0} />
+                )}
               </div>
               <div style={{ padding: 10 }}>
                 <h4 style={{ fontSize: 13, fontWeight: 600, marginBottom: 3 }}>{a.name}</h4>
@@ -108,16 +116,36 @@ export function AssetLibrary({ assets, onAdd, onEdit, onDelete, onDuplicate }) {
 // ═══════════════════════════════════════
 export function NewProjectModal({ onClose, onCreate }) {
   const [name, setName] = useState("");
-  const [ww, setWw] = useState(300);
-  const [wh, setWh] = useState(260);
+  const [wwText, setWwText] = useState("300");
+  const [whText, setWhText] = useState("260");
   const [wallColor, setWallColor] = useState("#f5f0e6");
+
+  const ww = Math.max(50, parseInt(wwText) || 300);
+  const wh = Math.max(50, parseInt(whText) || 260);
+
   return (
     <Modal title="New Project" onClose={onClose}>
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         <TextInput label="Project Name" value={name} onChange={setName} placeholder="e.g. Living Room — Main Wall" />
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-          <NumInput label="Wall Width" value={ww} onChange={setWw} suffix="cm" min={50} />
-          <NumInput label="Wall Height" value={wh} onChange={setWh} suffix="cm" min={50} />
+          <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: 11, color: C.textDim, fontWeight: 500 }}>
+            Wall Width
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <input type="text" inputMode="numeric" value={wwText} onFocus={e => e.target.select()}
+                onChange={e => { if (/^\d*$/.test(e.target.value)) setWwText(e.target.value); }}
+                style={{ flex: 1, padding: "6px 8px", background: C.surfaceAlt, border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 13, fontFamily: "inherit", outline: "none" }} />
+              <span style={{ fontSize: 11, color: C.textMuted }}>cm</span>
+            </div>
+          </label>
+          <label style={{ display: "flex", flexDirection: "column", gap: 3, fontSize: 11, color: C.textDim, fontWeight: 500 }}>
+            Wall Height
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <input type="text" inputMode="numeric" value={whText} onFocus={e => e.target.select()}
+                onChange={e => { if (/^\d*$/.test(e.target.value)) setWhText(e.target.value); }}
+                style={{ flex: 1, padding: "6px 8px", background: C.surfaceAlt, border: `1px solid ${C.border}`, borderRadius: 6, color: C.text, fontSize: 13, fontFamily: "inherit", outline: "none" }} />
+              <span style={{ fontSize: 11, color: C.textMuted }}>cm</span>
+            </div>
+          </label>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontSize: 11, color: C.textDim, fontWeight: 500 }}>Wall Color</span>
@@ -126,7 +154,7 @@ export function NewProjectModal({ onClose, onCreate }) {
         </div>
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 4 }}>
           <Btn onClick={onClose}>Cancel</Btn>
-          <Btn variant="accent" disabled={!name.trim()} onClick={() => onCreate({ id: uid(), name: name.trim(), wallWidth: Math.max(50, ww), wallHeight: Math.max(50, wh), wallColor, elements: [], snapshots: [] })}>Create</Btn>
+          <Btn variant="accent" disabled={!name.trim()} onClick={() => onCreate({ id: uid(), name: name.trim(), wallWidth: ww, wallHeight: wh, wallColor, elements: [], snapshots: [], groups: [] })}>Create</Btn>
         </div>
       </div>
     </Modal>

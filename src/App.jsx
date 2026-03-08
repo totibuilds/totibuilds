@@ -14,7 +14,6 @@ export default function App() {
   const [showAssetModal, setShowAssetModal] = useState(null);
   const [loaded, setLoaded] = useState(false);
 
-  // Load from IndexedDB
   useEffect(() => {
     (async () => {
       const p = await storageGet("projects");
@@ -25,7 +24,6 @@ export default function App() {
     })();
   }, []);
 
-  // Debounced save
   const saveTimer = useRef(null);
   const save = useCallback((p, a) => {
     clearTimeout(saveTimer.current);
@@ -35,14 +33,25 @@ export default function App() {
     }, 400);
   }, []);
 
-  const updP = fn => setProjects(prev => { const n = fn(prev); save(n, assets); return n; });
-  const updA = fn => setAssets(prev => { const n = fn(prev); save(projects, n); return n; });
+  // Use refs to avoid stale closures in save
+  const projectsRef = useRef(projects);
+  const assetsRef = useRef(assets);
+  useEffect(() => { projectsRef.current = projects; }, [projects]);
+  useEffect(() => { assetsRef.current = assets; }, [assets]);
+
+  const updP = fn => setProjects(prev => { const n = fn(prev); save(n, assetsRef.current); return n; });
+  const updA = fn => setAssets(prev => { const n = fn(prev); save(projectsRef.current, n); return n; });
 
   const activeProject = projects.find(p => p.id === activeProjectId);
   const updAP = fn => updP(prev => prev.map(p => p.id === activeProjectId ? fn(p) : p));
 
+  // Handler for adding asset from within project view
+  const handleAddAssetFromProject = useCallback((asset) => {
+    updA(prev => [...prev, asset]);
+  }, []);
+
   if (!loaded) {
-    return <div style={{ fontFamily: "'DM Sans', sans-serif", background: C.bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: C.textDim }}>Loading...</div>;
+    return <div style={{ fontFamily: "'DM Sans', sans-serif", background: C.bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: C.textDim }}>Loading TotiBuilds...</div>;
   }
 
   return (
@@ -57,9 +66,9 @@ export default function App() {
           </span>
         </div>
         <div style={{ flex: 1 }} />
-        <Btn variant="ghost" small onClick={() => setScreen("library")}>
-          <Icon type="grid" size={15} /> Assets
-          {assets.length > 0 && <span style={{ background: C.accentGlow, color: C.accent, padding: "1px 6px", borderRadius: 10, fontSize: 11, fontWeight: 600 }}>{assets.length}</span>}
+        <Btn variant="accent" small onClick={() => setScreen("library")} style={{ borderRadius: 20, padding: "6px 16px" }}>
+          <Icon type="grid" size={15} color={C.white} /> Asset Library
+          {assets.length > 0 && <span style={{ background: "rgba(255,255,255,0.25)", color: C.white, padding: "1px 6px", borderRadius: 10, fontSize: 11, fontWeight: 600 }}>{assets.length}</span>}
         </Btn>
       </div>
 
@@ -92,6 +101,7 @@ export default function App() {
           project={activeProject}
           assets={assets}
           onUpdate={updAP}
+          onAddAsset={handleAddAssetFromProject}
         />
       )}
 
