@@ -441,6 +441,22 @@ export default function ProjectView({ project, assets, onUpdate, onAddAsset }) {
   const isMulti = multiSel.length > 1;
   const selGroup = selected ? getGroup(selected) : null;
 
+  // Contextual hints (show once, auto-dismiss)
+  const [hint, setHint] = useState(null);
+  const shownHints = useRef(new Set());
+  useEffect(() => {
+    if (view === "2d" && !shownHints.current.has("2d")) {
+      shownHints.current.add("2d");
+      setHint("Pinch to zoom · Two fingers to pan · Shift+click to multi-select");
+      setTimeout(() => setHint(h => h === "Pinch to zoom · Two fingers to pan · Shift+click to multi-select" ? null : h), 5000);
+    }
+    if (view === "3d" && !shownHints.current.has("3d")) {
+      shownHints.current.add("3d");
+      setHint("Drag to orbit · Right-drag to pan · Scroll to zoom");
+      setTimeout(() => setHint(h => h === "Drag to orbit · Right-drag to pan · Scroll to zoom" ? null : h), 5000);
+    }
+  }, [view]);
+
   return (
     <div style={{ display: "flex", height: "calc(100vh - 45px)" }}>
       {/* Sidebar */}
@@ -593,6 +609,14 @@ export default function ProjectView({ project, assets, onUpdate, onAddAsset }) {
 
             <div style={{ position: "absolute", left: wOX, top: wOY + wpH + 6, width: wpW, textAlign: "center", fontSize: 11, fontFamily: mono, color: C.textMuted }}>{project.wallWidth} cm</div>
             <div style={{ position: "absolute", left: wOX - 8, top: wOY, height: wpH, display: "flex", alignItems: "center", fontSize: 11, fontFamily: mono, color: C.textMuted, writingMode: "vertical-rl", transform: "rotate(180deg)" }}>{project.wallHeight} cm</div>
+          </div>
+        )}
+
+        {/* Contextual hint */}
+        {hint && (
+          <div onClick={() => setHint(null)} style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 15, background: C.surface, border: `1px solid ${C.border}`, borderRadius: 10, padding: "8px 16px", fontSize: 12, color: C.textDim, boxShadow: "0 4px 16px rgba(0,0,0,0.1)", cursor: "pointer", display: "flex", alignItems: "center", gap: 8, whiteSpace: "nowrap" }}>
+            <span>{hint}</span>
+            <span style={{ fontSize: 10, color: C.textMuted }}>✕</span>
           </div>
         )}
 

@@ -50,12 +50,52 @@ export default function App() {
     updA(prev => [...prev, asset]);
   }, []);
 
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Check if first visit
+  useEffect(() => {
+    if (loaded) {
+      storageGet("onboarded").then(val => { if (!val) setShowWelcome(true); });
+    }
+  }, [loaded]);
+
+  const dismissWelcome = () => {
+    setShowWelcome(false);
+    storageSet("onboarded", true);
+  };
+
   if (!loaded) {
     return <div style={{ fontFamily: "'DM Sans', sans-serif", background: C.bg, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", color: C.textDim }}>Loading TotiBuilds...</div>;
   }
 
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: C.bg, color: C.text, minHeight: "100vh" }}>
+      {/* Welcome overlay */}
+      {showWelcome && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(58,48,40,0.5)", backdropFilter: "blur(6px)" }}>
+          <div style={{ background: C.surface, borderRadius: 20, padding: 40, maxWidth: 460, width: "90vw", textAlign: "center", boxShadow: "0 20px 60px rgba(0,0,0,0.2)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 20 }}>
+              <Icon type="layers" size={28} color={C.accent} />
+              <span style={{ fontSize: 24, fontWeight: 700 }}>Toti<span style={{ color: C.accent }}>Builds</span></span>
+            </div>
+            <p style={{ fontSize: 15, color: C.text, marginBottom: 24, lineHeight: 1.5 }}>Plan your walls and spaces.<br/>Visualize your furniture, shelves, and artwork<br/>before you pick up a drill.</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, textAlign: "left", marginBottom: 28, padding: "0 20px" }}>
+              {[
+                { n: "1", t: "Create your assets", d: "Add your shelves, cabinets, artwork — with real dimensions and colors" },
+                { n: "2", t: "Start a project", d: "Set up a wall with your dimensions" },
+                { n: "3", t: "Place & arrange", d: "Drag assets onto the wall, snap to guides, check the 3D view" },
+                { n: "4", t: "Get design tips", d: "Built-in suggestions for spacing, height, and balance" },
+              ].map(s => (
+                <div key={s.n} style={{ display: "flex", gap: 12, alignItems: "start" }}>
+                  <div style={{ width: 28, height: 28, borderRadius: 14, background: C.accent, color: C.white, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, flexShrink: 0 }}>{s.n}</div>
+                  <div><p style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{s.t}</p><p style={{ fontSize: 12, color: C.textDim, marginTop: 2 }}>{s.d}</p></div>
+                </div>
+              ))}
+            </div>
+            <Btn variant="accent" onClick={dismissWelcome} style={{ padding: "10px 32px", fontSize: 14, borderRadius: 12 }}>Get Started</Btn>
+          </div>
+        </div>
+      )}
       {/* Topbar */}
       <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 24px", borderBottom: `1px solid ${C.border}`, background: C.surface }}>
         {screen !== "home" && <Btn variant="ghost" small onClick={() => setScreen("home")}><Icon type="back" size={16} /> Back</Btn>}
