@@ -642,7 +642,7 @@ export default function ProjectView({ project, assets, onUpdate, onAddAsset }) {
                       <img src={a.imageData} alt={a.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     </div>
                   ) : (
-                    <AssetThumb bodyColor={a.bodyColor || "#8b6b3d"} frontColor={a.frontColor || a.bodyColor || "#8b6b3d"} w={a.width} h={a.height} d={a.depth} size={55} legs={a.legStyle} drawers={a.drawers || 0} />
+                    <AssetThumb bodyColor={a.bodyColor || "#8b6b3d"} frontColor={a.frontColor || a.bodyColor || "#8b6b3d"} w={a.width} h={a.height} d={a.depth} size={55} legs={a.legStyle} drawers={a.drawers || 0} doorStyle={a.doorStyle} doorConfig={a.doorConfig} mountType={a.mountType} shelfStyle={a.shelfStyle} shelfCount={a.shelfCount} category={a.category} frameType={a.frameType} matWidth={a.matWidth} imageData={a.imageData} />
                   )}
                 </div>
                 <div style={{ padding: 6 }}><p style={{ fontSize: 11, fontWeight: 600 }}>{a.name}</p><p style={{ fontSize: 10, color: C.textDim }}>{a.width}×{a.height}</p></div>

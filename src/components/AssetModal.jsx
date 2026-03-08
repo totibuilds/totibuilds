@@ -140,7 +140,7 @@ export default function AssetModal({ asset, onClose, onSave }) {
 
         {/* Preview */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: 12, background: C.surfaceAlt, borderRadius: 8 }}>
-          <AssetThumb bodyColor={bodyClr} frontColor={useFront ? frontClr : bodyClr} w={w} h={h} d={d} size={72} legs={showLegs ? legStyle : "None"} drawers={showDrawers ? drawers : 0} />
+          <AssetThumb bodyColor={bodyClr} frontColor={useFront ? frontClr : bodyClr} w={w} h={h} d={d} size={72} legs={showLegs ? legStyle : "None"} drawers={showDrawers ? drawers : 0} doorStyle={doorStyle} doorConfig={doorConfig} mountType={mount} shelfStyle={shelfStyle} shelfCount={shelfCount} category={cat} frameType={frameType} matWidth={matWidth} imageData={imgData} />
           <div style={{ fontSize: 12, color: C.textDim }}>Preview<br /><span style={{ fontSize: 11, color: C.textMuted }}>{w}×{h}×{d} cm</span></div>
         </div>
 
