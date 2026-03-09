@@ -153,15 +153,15 @@ export default function ThreeView({ project, selected }) {
         }
 
         if (mw > 0) {
-          makeMesh(new THREE.BoxGeometry(el.width - fw * 2, el.height - fw * 2, dp * 0.5), new THREE.MeshStandardMaterial({ color: 0xf5f2eb, roughness: 0.9 }), [0, 0, dp * 0.15], g);
+          makeMesh(new THREE.BoxGeometry(el.width - fw * 2, el.height - fw * 2, dp * 0.3), new THREE.MeshStandardMaterial({ color: 0xf5f2eb, roughness: 0.9 }), [0, 0, dp * 0.05], g);
           const artW = el.width - fw * 2 - mw * 2, artH = el.height - fw * 2 - mw * 2;
           if (artW > 0 && artH > 0) {
-            const am = new THREE.MeshStandardMaterial({ color: fHex, roughness: 0.8 });
+            const am = new THREE.MeshStandardMaterial({ color: el.imageData ? 0xffffff : fHex, roughness: 0.8 });
             if (el.imageData) { new THREE.TextureLoader().load(el.imageData, tex => { am.map = tex; am.needsUpdate = true; }); }
-            makeMesh(new THREE.BoxGeometry(artW, artH, dp * 0.3), am, [0, 0, dp * 0.2], g);
+            makeMesh(new THREE.BoxGeometry(artW, artH, 1), am, [0, 0, dp * 0.25], g);
           }
         } else {
-          const am = new THREE.MeshStandardMaterial({ color: fHex, roughness: 0.8 });
+          const am = new THREE.MeshStandardMaterial({ color: el.imageData ? 0xffffff : fHex, roughness: 0.8 });
           if (el.imageData) { new THREE.TextureLoader().load(el.imageData, tex => { am.map = tex; am.needsUpdate = true; }); }
           makeMesh(new THREE.BoxGeometry(el.width - fw * 2, el.height - fw * 2, dp * 0.8), am, [0, 0, fw > 0 ? dp * 0.05 : 0], g);
         }
